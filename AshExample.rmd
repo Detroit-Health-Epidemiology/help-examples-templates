@@ -1,0 +1,53 @@
+# Samantha Lynn Bell 2020
+____________________________________________________________________________________
+What does this script need?
+  ____________________________________________________________________________________
+
+This script takes in:
+  1- This script takes in a ____ file from _____ that is provided by ____
+
+
+____________________________________________________________________________________
+What does this script do?
+  ____________________________________________________________________________________
+It will load the data, ____ and export:
+1- [file 1]
+2- [file 2] ...
+__________________________________________________________________________________
+INSTRUCTIONS
+____________________________________________________________________________________
+1- Fill in required necessary information in fields that look like this: 
+  # ************************************************************************************#
+  #      Text Here
+  #
+  # ************************************************************************************#
+  2- Then click the green run button for that block of code
+
+
+Provide the data and save locations
+```{r}
+# String in quotes, giving the path to the original raw data and the location you would like to save to later
+# No file names, just path to the folder
+inputLocation <- "S:/Health/Epidemiology/Data/MDSS/...."
+saveLocation <- "C:/Users/Rappa/Documents"
+```
+
+
+```{r}
+# Your code here
+```
+
+Save the export files
+
+What is happening here?
+  -the paste0() function pastes strings, with zero space between them
+  -we are telling the write.xlsx function that we:
+    -want to write an excel file
+    -we want to print the RawAge data to this file
+    -we want the file path to start with our provided location
+    -we want the file path to end with the filename "myfile.xlsx" 
+        The extension of the file must be given (.xslx)
+```{r export}
+write.xlsx(RawAge, file=paste0(location, "/myfile.xlsx")) 
+```
+
