@@ -1,0 +1,88 @@
+## Katerina Stylianou 10/29/2020 ##
+____________________________________________________________________________________
+What does this script need?
+  ____________________________________________________________________________________
+
+This script takes in:
+  1- MDSS disease specific search for confirmed Covid-19 cases in Detroit (Base case investigation)
+
+
+____________________________________________________________________________________
+What does this script do?
+  ____________________________________________________________________________________
+
+  1- merges sections of MDSS downloads into one dataframe for processing in covid.rmd
+
+__________________________________________________________________________________
+INSTRUCTIONS
+____________________________________________________________________________________
+1- 1st and 2nd split files need to be from previous day
+2- 90 d download from today
+
+
+Check for installed packages. Please make certain that the following packages are installed and then run the code to load libraries:
+```{r packages}
+library(knitr)
+library(openxlsx)
+library(tidyverse)
+library(summarytools)
+library(TeachingDemos)
+library(anytime)
+library(rgdal)
+library(doParallel)
+
+# Detect number of cores and prepare to run parallel loops later
+no_cores <- detectCores() - 1  
+cl <- makeCluster(no_cores)  
+# Run parallel
+registerDoParallel(cl) 
+
+# Run garbage collection to free up unused memory in R studio
+gc()
+
+```
+
+```{r setup}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Enter location where files are located and new files will be saved
+```{r location ## Samantha Lynn Bell DHD 02/2020 ##}
+
+### TYPE THE PATH BETWEEN THE "". SLASHES MUST FACE THIS DIRECTION: / ###
+# ************************************************************************************#
+location <- "S:/Health/Epidemiology/Data/MDSS/original/COVD-19 Coronavirus/2020_03_Coronavirus"
+
+
+# ************************************************************************************#
+```
+
+Load the downloaded data from MDSS disease specific search
+(Will be named covidDataDup until duplicates are removed)
+- Choose from 2 methods depending upon how the download from MDSS was done:
+  Select and run the method chosen
+  
+```{r loadData ## Caleb Ward / Samantha Lynn Bell DHD 2020 ##}
+# Run #1 if you have outbreak downloaded into two separate halves split by specified referral dates
+
+coviddata1 <- readWorkbook(paste0(location, "/", "BaseCaseInvestigation1sthalf.xlsx"), sheet = 1, na.strings = c('NA', '#N/A', ''), detectDates = TRUE) 
+coviddata2 <- readWorkbook(paste0(location, "/", "BaseCaseInvestigation2ndhalf.xlsx"), sheet = 1, na.strings = c('NA', '#N/A', ''), detectDates = TRUE) 
+coviddata90 <- readWorkbook(paste0(location, "/", "BaseCaseInvestigation90.xlsx"), sheet = 1, na.strings = c('NA', '#N/A', ''), detectDates = TRUE) 
+
+coviddata1 <- coviddata1 %>% mutate_all(as.character)
+coviddata2 <- coviddata2 %>% mutate_all(as.character)
+coviddata90 <- coviddata90 %>% mutate_all(as.character)
+
+#check for error message anywhere in the two datasets
+if(isTRUE(any(coviddata1 == "An error occurred while exporting this case."))){stop("WARNING! There are errors in the 1st-half download file.")}
+if(isTRUE(any(coviddata2 == "An error occurred while exporting this case."))){stop("WARNING! There are errors in the 2nd-half download file.")}
+if(isTRUE(any(coviddata90 == "An error occurred while exporting this case."))){stop("WARNING! There are errors in 90 ddownload file.")}
+
+first_join <- rbind(coviddata1, coviddata2)
+
+diff <- anti_join(first_join,coviddata90,by="InvestigationID")
+
+covidDataDub <-  rbind(diff,coviddata90)
+
+
+```
