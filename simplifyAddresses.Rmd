@@ -1,0 +1,23 @@
+Look for addresses that pop up repeatedly. 
+
+1- Make a simplified address for matching
+    If an address has a one letter N,S,E,W capture : take the number, one letter, and a full word following (ex: 100 E Mack)
+    If an address has only a number and then the name : take the number and first full word (ex: 100 Mack)
+2- Group the simplified addresses, ignoring case
+
+```{r}
+# Make a column with just the beginning of street addresses (for easier grouping)
+pat1 <- "^\\d+\\s+\\w{1}\\s*\\w+\\s"  #match for a one letter N,S,E,W before the name
+pat2 <- "^\\d+\\s+\\w+\\s" #match for full word directly after the number - only use if not expecting a directional letter
+
+for(i in 1:dim(myData)[1]){
+  if(!is.na(myData$Street_Address[i])){
+    myData$Address_Simple[i] <- ifelse(
+      !is.na(str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE))), #Check for N,S,E,W type letter match
+      str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE)), #if N,S,E,W letter was found, match pattern 1
+      str_match(myData$Street_Address[i], regex(pat2, ignore_case = TRUE))) #else take a full word after the number using pattern 2
+    }else{"NA"} # If no address, NA simple address
+}
+  
+# Count repeat employer street addresses (make all lowercase for grouping - using tolower )
+hotspots <- myData  %>%  group_by(tolower(Address_Simple)) %>% summarise(n = n()) %>% arrange(desc(n))
