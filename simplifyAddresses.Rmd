@@ -8,7 +8,7 @@ Look for addresses that pop up repeatedly.
 Example addresses in a table
 ```{r}
 Id <- c(1:16)
-Street_Address <- c("444 Michigan Avenue","11570 East Warren Ave","4000 South Jean Street","411 W Lafayette","8060 W Vernor","8060 West Vernor","11570 E Warren Avenue","135000 Chicago","135000 West Chicago Ave","19333 W 8 Mile","19333 West 8 Mile","13233 East Jefferson Ave","13233 E Jefferson","13233 Jefferson Avenue","13335 W. Warren","13335 West Warren Ave")
+Street_Address <- c("444 Michigan Avenue","11570 East Warren Ave","4000 South Jean Street","411 W Lafayette","8060 W Vernor","8060 West Vernor","11570 E Warren Avenue","135000 W. Chicago","135000 West Chicago Ave","19333 W 8 Mile","19333 West 8 Mile","13233 East Jefferson Ave","13233 E Jefferson","13233 Jefferson Avenue","13335 W. Warren","13335 West Warren Ave")
 myData <- as_tibble(cbind(Id, Street_Address))
 ```
 
@@ -22,12 +22,12 @@ pat2 <- "^\\d+\\s+\\w+" #match for full word directly after the number - only us
 for(i in 1:dim(myData)[1]){
   if(!is.na(myData$Street_Address[i])){
     myData$Address_Simple[i] <- ifelse(
-      !is.na(str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE))), #Check for N,S,E,W type letter match
+      !is.na(str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE))[1]), #Check for N,S,E,W type letter match
       (str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE))[1] %>% #if N,S,E,W letter was found, match pattern 1 and substitute NSEW to standard format
-        gsub(regex("(N\\s|N\\.\\s|North\\s)"), "North ", x = ., ignore.case = TRUE) %>%
-        gsub(regex("(S\\s|S\\.\\s|South\\s)"), "South ", x = ., ignore.case = TRUE) %>%
-        gsub(regex("(E\\s|E\\.\\s|East\\s)"), "East ", x = ., ignore.case = TRUE) %>%
-        gsub(regex("(W\\s|W\\.\\s|West\\s)"), "West ", x = ., ignore.case = TRUE)), 
+        gsub("(N\\s|N\\.\\s|North\\s)", "North ", x = ., ignore.case = TRUE) %>%
+        gsub("(S\\s|S\\.\\s|South\\s)", "South ", x = ., ignore.case = TRUE) %>%
+        gsub("(E\\s|E\\.\\s|East\\s)", "East ", x = ., ignore.case = TRUE) %>%
+        gsub("(W\\s|W\\.\\s|West\\s)", "West ", x = ., ignore.case = TRUE)), 
       str_match(myData$Street_Address[i], regex(pat2, ignore_case = TRUE))) #else take a full word after the number using pattern 2
     }else{"NA"} # If no address, NA simple address
 }
@@ -35,4 +35,5 @@ for(i in 1:dim(myData)[1]){
 # Count repeat employer street addresses (make all lowercase for grouping - using tolower )
 hotspots <- myData  %>%  group_by(tolower(Address_Simple)) %>% summarise(n = n()) %>% arrange(desc(n))
 ```
+
 
