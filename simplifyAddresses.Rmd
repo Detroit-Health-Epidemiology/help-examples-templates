@@ -1,3 +1,9 @@
+Load Packages
+```{r}
+library(tidyverse)
+```
+
+
 Look for addresses that pop up repeatedly. 
 
 1- Make a simplified address for matching
@@ -16,18 +22,20 @@ myData <- as_tibble(cbind(Id, Street_Address))
 Clean the addresses and group them
 ```{r}
 # Make a column with just the beginning of street addresses (for easier grouping)
-pat1 <- "^\\d+\\s+(N|S|E|W).{0,5}\\s*\\w+"  #match for a one letter N,S,E,W before the name
+pat1 <- "^\\d+\\s+[N|S|E|W].{0,5}\\s*\\w+"  #match for a one letter N,S,E,W before the name
 pat2 <- "^\\d+\\s+\\w+" #match for full word directly after the number - only use if not expecting a directional letter
+
+myData$Address_Simple <- ""  # initiate empty column
 
 for(i in 1:dim(myData)[1]){
   if(!is.na(myData$Street_Address[i])){
     myData$Address_Simple[i] <- ifelse(
       !is.na(str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE))[1]), #Check for N,S,E,W type letter match
       (str_match(myData$Street_Address[i], regex(pat1, ignore_case = TRUE))[1] %>% #if N,S,E,W letter was found, match pattern 1 and substitute NSEW to standard format
-        gsub("(N\\s|N\\.\\s|North\\s)", "North ", x = ., ignore.case = TRUE) %>%
-        gsub("(S\\s|S\\.\\s|South\\s)", "South ", x = ., ignore.case = TRUE) %>%
-        gsub("(E\\s|E\\.\\s|East\\s)", "East ", x = ., ignore.case = TRUE) %>%
-        gsub("(W\\s|W\\.\\s|West\\s)", "West ", x = ., ignore.case = TRUE)), 
+        gsub("N\\s|N\\.\\s|North\\s", "North ", x = ., ignore.case = TRUE) %>%
+        gsub("S\\s|S\\.\\s|South\\s", "South ", x = ., ignore.case = TRUE) %>%
+        gsub("E\\s|E\\.\\s|East\\s", "East ", x = ., ignore.case = TRUE) %>%
+        gsub("W\\s|W\\.\\s|West\\s", "West ", x = ., ignore.case = TRUE)), 
       str_match(myData$Street_Address[i], regex(pat2, ignore_case = TRUE))) #else take a full word after the number using pattern 2
     }else{"NA"} # If no address, NA simple address
 }
