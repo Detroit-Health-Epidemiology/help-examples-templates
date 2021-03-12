@@ -22,7 +22,7 @@ myData <- as_tibble(cbind(Id, Street_Address))
 Clean the addresses and group them
 ```{r}
 # Make a column with just the beginning of street addresses (for easier grouping)
-pat1 <- "^\\d+\\s+[N|S|E|W].{0,5}\\s*\\w+"  #match for a one letter N,S,E,W before the name
+pat1 <- "^\\d+\\s+[NSEW].{0,5}\\s*\\w+"  #match for a one letter N,S,E,W before the name
 pat2 <- "^\\d+\\s+\\w+" #match for full word directly after the number - only use if not expecting a directional letter
 
 myData$Address_Simple <- ""  # initiate empty column
